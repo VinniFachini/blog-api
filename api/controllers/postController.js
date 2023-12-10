@@ -3,7 +3,22 @@ const { queryAsync } = require('../db');
 
 const getPosts = async (req, res) => {
     try {
-        const posts = await queryAsync('SELECT * FROM posts');
+        const query = `
+            SELECT posts.*, GROUP_CONCAT(categories.name) AS categoryNames
+            FROM posts
+            LEFT JOIN post_categories ON posts.id = post_categories.post_id
+            LEFT JOIN categories ON post_categories.category_id = categories.id
+            GROUP BY posts.id
+        `;
+
+        const posts = await queryAsync(query);
+
+        // Transform categoryNames into an array
+        posts.forEach(post => {
+            post.categories = post.categoryNames ? post.categoryNames.split(',') : [];
+            delete post.categoryNames;
+        });
+
         res.status(200).json(posts);
     } catch (error) {
         console.error(error);
@@ -15,13 +30,24 @@ const getPostById = async (req, res) => {
     try {
         const postId = req.params.postId;
 
-        // Busca o post pelo ID
-        const post = await queryAsync('SELECT * FROM posts WHERE id = ?', [postId]);
+        const query = `
+            SELECT posts.*, GROUP_CONCAT(categories.name) AS categoryNames
+            FROM posts
+            LEFT JOIN post_categories ON posts.id = post_categories.post_id
+            LEFT JOIN categories ON post_categories.category_id = categories.id
+            WHERE posts.id = ?
+            GROUP BY posts.id
+        `;
 
-        // Verifica se o post foi encontrado
+        const post = await queryAsync(query, [postId]);
+
         if (post.length === 0) {
             return res.status(404).json({ error: 'Post não encontrado' });
         }
+
+        // Transform categoryNames into an array
+        post[0].categories = post[0].categoryNames ? post[0].categoryNames.split(',') : [];
+        delete post[0].categoryNames;
 
         res.status(200).json(post[0]);
     } catch (error) {
