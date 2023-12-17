@@ -195,14 +195,10 @@
 import { useAuth } from "~/composables/auth";
 export default {
   methods: {
-    logoutUser() {
-      const { logout } = useAuth();
-      const router = useRouter();
-      const logedOut = logout();
-      console.log("Usuário Deslogado", logedOut);
-      if (logedOut) {
-        router.push("/login");
-      }
+    async logoutUser() {
+      const { logout } = await useAuth();
+      logout();
+      this.$router.push('/login')
     },
   },
 };

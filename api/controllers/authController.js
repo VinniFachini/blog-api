@@ -40,8 +40,22 @@ const login = async (req, res) => {
 
             if (match) {
                 // Gera um token JWT válido por 1 hora
-                const token = jwt.sign({ username: results[0].username, id: results[0].id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-                res.status(200).json({ token });
+                const expirationTime = 3600; // 1 hour in seconds
+                const token = jwt.sign(
+                    { username: results[0].username, id: results[0].id },
+                    process.env.JWT_SECRET,
+                    { expiresIn: expirationTime }
+                );
+
+                // Return user data, user_image URL, and expiration time
+                const userData = {
+                    email: results[0].email,
+                    name: results[0].name,
+                    username: results[0].username,
+                    user_image: results[0].user_image,  // Include the user_image URL
+                };
+
+                res.status(200).json({ token, userData, expiresIn: expirationTime });
             } else {
                 res.status(401).json({ error: 'Credenciais inválidas' });
             }
@@ -53,5 +67,6 @@ const login = async (req, res) => {
         res.status(500).json({ error: 'Erro interno no servidor' });
     }
 };
+
 
 module.exports = { register, login };

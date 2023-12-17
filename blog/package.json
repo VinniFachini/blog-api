@@ -11,6 +11,7 @@
   },
   "devDependencies": {
     "@nuxt/devtools": "latest",
+    "@sidebase/nuxt-session": "^0.2.8",
     "autoprefixer": "^10.4.16",
     "nuxt": "^3.8.2",
     "postcss": "^8.4.32",
@@ -20,6 +21,7 @@
     "vue-router": "^4.2.5"
   },
   "dependencies": {
+    "nuxt-storage": "^1.2.2",
     "sass": "^1.69.5"
   }
 }

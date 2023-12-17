@@ -8,4 +8,16 @@ export default defineNuxtConfig({
       autoprefixer: {},
     },
   },
+  generate: {
+    routes: [
+      '/admin/posts/:id',
+    ]
+  },
+  modules: ['@sidebase/nuxt-session'],
+  session: {
+    isEnabled: true,
+    session: {
+      expiryInSeconds: 3600,
+    }
+  }
 })

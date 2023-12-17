@@ -26,7 +26,7 @@
       </ButtonInput>
     </div>
     <DashboardTable :data="paginatedPosts" :fields="postsFields" />
-    <div class="pagination">
+    <div v-if="totalPages > 1" class="pagination" >
       <button @click="prevPage" :disabled="currentPage === 1">Previous</button>
       <div class="numbered-buttons">
         <button
@@ -59,20 +59,11 @@ export default {
     const postsFields = ref([]);
 
     const fetchPosts = async () => {
-      if (typeof sessionStorage === "undefined") {
-        console.error("sessionStorage is not available in this environment.");
-        return;
-      }
-
       try {
         const response = await useFetch(
           "http://localhost:3001",
           "posts",
           "GET",
-          {
-            _page: currentPage.value,
-            _limit: perPage,
-          }
         );
 
         postsFields.value = Object.keys(response[0]);

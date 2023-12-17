@@ -136,10 +136,27 @@ const deletePost = async (req, res) => {
     try {
         const postId = req.params.postId;
 
-        // Remove todas as referências na tabela 'post_categories'
+        // Remove all references in the 'post_categories' table
         await queryAsync('DELETE FROM post_categories WHERE post_id = ?', [postId]);
 
-        // Exclui fisicamente o post da tabela 'posts'
+        // Retrieve all comments associated with the post
+        const commentsToDelete = await queryAsync('SELECT id FROM comments WHERE post_id = ?', [postId]);
+
+        // Recursively delete child comments
+        const deleteCommentsRecursively = async (commentId) => {
+            const childComments = await queryAsync('SELECT id FROM comments WHERE parent_comment_id = ?', [commentId]);
+            for (const childComment of childComments) {
+                await deleteCommentsRecursively(childComment.id);
+            }
+            await queryAsync('DELETE FROM comments WHERE id = ?', [commentId]);
+        };
+
+        // Delete comments recursively
+        for (const comment of commentsToDelete) {
+            await deleteCommentsRecursively(comment.id);
+        }
+
+        // Physically delete the post from the 'posts' table
         await queryAsync('DELETE FROM posts WHERE id = ?', [postId]);
 
         res.status(200).json({ message: 'Post excluído com sucesso' });
