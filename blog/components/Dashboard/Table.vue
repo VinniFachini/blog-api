@@ -56,7 +56,7 @@
           </td>
           <td class="py-2 px-4 text-center">
             <button
-              @click="deleteItem(item.id)"
+              @click="openConfirm(item.id)"
               class="text-red-500 hover:underline"
             >
               <svg
@@ -75,6 +75,7 @@
             </button>
           </td>
         </tr>
+        <ModalComponent :data="item" ref="pageModal" @confirm="handleConfirm" />
       </tbody>
     </table>
   </div>
@@ -103,8 +104,18 @@ export default {
       const router = useRouter();
       router.push(`/admin/posts/${item.id}`);
     },
-    async deleteItem(itemId) {
-      await useFetch("http://localhost:3001", `posts/${itemId}`, "DELETE");
+    async openConfirm(itemId) {
+      const data = {
+        title: `Are you sure you want to delete Post: ${itemId}`,
+        message: `By deleting Post ${itemId} you are going to delete all of its comments. Are you sure?`,
+        isConfirm: true,
+        type: 'danger',
+        data: itemId
+      };
+      await this.$refs.pageModal.openModal(data);
+    },
+    async handleConfirm({data}) {
+      await useFetch("http://localhost:3001", `posts/${data}`, "DELETE");
       this.$router.go();
     },
     truncateText(text) {

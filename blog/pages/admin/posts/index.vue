@@ -5,6 +5,7 @@
     </Head>
     <div class="posts-header">
       <h1 class="text-4xl">Posts</h1>
+      <NuxtLink to="/admin/posts/new">
       <ButtonInput
         class="custom-button bg-blue-500 hover:bg-blue-600 text-white rounded-md py-2 px-4 mt-4 transition-all duration-300 ease-in-out"
       >
@@ -24,6 +25,7 @@
         </svg>
         <span>New Post</span>
       </ButtonInput>
+    </NuxtLink>
     </div>
     <DashboardTable :data="paginatedPosts" :fields="postsFields" />
     <div v-if="totalPages > 1" class="pagination" >

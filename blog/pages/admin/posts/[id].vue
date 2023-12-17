@@ -49,59 +49,87 @@
           @update:modelValue="updatePostField(field, $event)"
         /> -->
         <div v-else-if="field == 'categories'" class="categories">
-          <span>Categories: </span>
-          <div class="button-group">
-            <ButtonInput
-              class="bg-blue-500 hover:bg-blue-700 hover:fill-blue-700"
-              type="button"
-              rounded
-              v-for="category in postCategories"
-              :key="category.id"
-            >
-              {{ category.name }}
-              <svg
-                @click.prevent="handleCategory(category, 'remove')"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width="1.5"
-                stroke="currentColor"
-                class="w-5 h-5"
+          <div class="categories-buttons">
+            <div class="button-group">
+              <span>Available Categories: </span>
+              <ButtonInput
+                class="bg-green-500 hover:bg-green-700"
+                type="button"
+                rounded
+                v-for="category in postCategoriesRemains"
+                :key="category.id"
               >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-            </ButtonInput>
-          </div>
-          <div class="button-group">
-            <ButtonInput
-              class="bg-green-500 hover:bg-green-700"
-              type="button"
-              rounded
-              v-for="category in postCategoriesRemains"
-              :key="category.id"
-            >
-              {{ category.name }}
-              <svg
-                @click.prevent="handleCategory(category, 'add')"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width="1.5"
-                stroke="currentColor"
-                class="w-5 h-5"
+                {{ category.name }}
+                <svg
+                  @click.prevent="handleCategory(category, 'add')"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                  stroke="currentColor"
+                  class="w-5 h-5"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M4.5 12.75l6 6 9-13.5"
+                  />
+                </svg>
+              </ButtonInput>
+              <ButtonInput
+                class="bg-green-500 hover:bg-green-700"
+                type="button"
+                rounded
+                v-for="category in postCategoriesRemains"
+                :key="category.id"
               >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-            </ButtonInput>
+                {{ category.name }}
+                <svg
+                  @click.prevent="handleCategory(category, 'add')"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                  stroke="currentColor"
+                  class="w-5 h-5"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </ButtonInput>
+            </div>
+            <div class="button-group">
+              <span>Selected Categories: </span>
+              <ButtonInput
+                class="bg-blue-500 hover:bg-blue-700 hover:fill-blue-700"
+                type="button"
+                rounded
+                v-for="category in postCategories"
+                :key="category.id"
+              >
+                {{ category.name }}
+                <svg
+                  @click.prevent="handleCategory(category, 'remove')"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                  stroke="currentColor"
+                  class="w-5 h-5"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </ButtonInput>
+            </div>
           </div>
+          <div class="button-group"></div>
         </div>
       </div>
       <ButtonInput
@@ -128,11 +156,21 @@
   align-items: center;
   justify-content: flex-start;
   gap: 20px;
+
+  .categories-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-start;
+  }
   .button-group {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 10px;
+    span {
+      min-width: 150px;
+    }
     button {
       display: flex;
       align-items: center;
@@ -195,12 +233,12 @@ export default {
       this.fetchPostInfo();
     },
     async excludePost() {
-        await useFetch(
-            "http://localhost:3001",
-            `posts/${this.$route.params.id}`,
-            "DELETE",
-        );
-        this.$router.push('/admin/posts')
+      await useFetch(
+        "http://localhost:3001",
+        `posts/${this.$route.params.id}`,
+        "DELETE"
+      );
+      this.$router.push("/admin/posts");
     },
     handleCategory(item, action) {
       if (action === "add") {
