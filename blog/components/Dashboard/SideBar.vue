@@ -192,12 +192,13 @@
 </style>
 
 <script>
-import { useAuth } from "~/composables/auth";
 export default {
+  async setup() {
+  },
   methods: {
     async logoutUser() {
-      const { logout } = await useAuth();
-      logout();
+      const { session, refresh, update, reset } = await useSession()
+      reset()
       this.$router.push('/login')
     },
   },

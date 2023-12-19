@@ -8,6 +8,7 @@
           <th v-for="field in formattedFields" :key="field" class="py-2 px-4">
             {{ field }}
           </th>
+          <th class="py-2 px-4">Read</th>
           <th class="py-2 px-4">Edit</th>
           <th class="py-2 px-4">Delete</th>
         </tr>
@@ -31,6 +32,26 @@
                 ? formatDateTime(item[field])
                 : truncateText(item[field])
             }}
+          </td>
+          <td class="py-2 px-4 text-center">
+            <button
+              @click="goTo(item)"
+              class="text-green-500 hover:underline"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="currentColor"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="none"
+                class="w-6 h-6"
+              >
+                <path
+                  d="M20 3H4c-1.103 0-2 .897-2 2v14c0 1.103.897 2 2 2h16c1.103 0 2-.897 2-2V5c0-1.103-.897-2-2-2zM4 19V5h16l.002 14H4z"
+                ></path>
+                <path d="M6 7h12v2H6zm0 4h12v2H6zm0 4h6v2H6z"></path>
+              </svg>
+            </button>
           </td>
           <td class="py-2 px-4 text-center">
             <button
@@ -102,19 +123,22 @@ export default {
   methods: {
     editItem(item) {
       const router = useRouter();
-      router.push(`/admin/posts/${item.id}`);
+      router.push(`/admin/posts/edit/${item.id}`);
+    },
+    goTo(item) {
+      this.$router.push(`/admin/posts/${item.id}`)
     },
     async openConfirm(itemId) {
       const data = {
         title: `Are you sure you want to delete Post: ${itemId}`,
         message: `By deleting Post ${itemId} you are going to delete all of its comments. Are you sure?`,
         isConfirm: true,
-        type: 'danger',
-        data: itemId
+        type: "danger",
+        data: itemId,
       };
       await this.$refs.pageModal.openModal(data);
     },
-    async handleConfirm({data}) {
+    async handleConfirm({ data }) {
       await useFetch("http://localhost:3001", `posts/${data}`, "DELETE");
       this.$router.go();
     },

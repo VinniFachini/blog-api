@@ -10,6 +10,7 @@ export default defineNuxtConfig({
   },
   generate: {
     routes: [
+      '/admin/posts/edit/:id',
       '/admin/posts/:id',
     ]
   },

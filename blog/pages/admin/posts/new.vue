@@ -159,7 +159,10 @@ export default {
           categoryIds: categoriesId
         }
         await useFetch('http://localhost:3001', 'posts', 'POST', postData)
-        console.log(postData)
+        this.postTitle = ''
+        this.postContent = ''
+        this.postCategories = []
+        this.postCategoriesRemains = this.categories
       }
     },
     async checkFields() {

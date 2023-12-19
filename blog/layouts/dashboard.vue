@@ -15,12 +15,17 @@
     "sidebar header header"
     "sidebar content content";
   grid-template-columns: 250px 1fr;
-  height: 100dvh;
+  height: 100%;
   grid-template-rows: 60px 1fr;
-  width: 100dvw;
+  width: 100%;
 }
 .sidebar-container {
   grid-area: sidebar;
+  position: fixed;
+  top: 0;
+  width: 250px;
+  height: 100vh;
+  left: 0;
 }
 
 .header {

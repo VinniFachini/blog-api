@@ -28,7 +28,9 @@ export default {
     methods: {
         async handleLogin(username, password) {
             const {login} = await useAuth()
-            await login({username, password})
+            const { session, refresh, update, reset } = await useSession()
+            const loginResponse = await login({username, password})
+            update(loginResponse)
             this.redirect();
         },
         async redirect() {
