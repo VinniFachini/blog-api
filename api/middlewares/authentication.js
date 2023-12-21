@@ -26,21 +26,27 @@ const getUserIdFromToken = (token) => {
         return userId;
     } catch (error) {
         console.error('Erro ao verificar o token:', error);
-        return null;
     }
 };
 
 const getUserIdMiddleware = (req, res, next) => {
     const token = req.headers.authorization;
 
-    if(getUserIdFromToken(token)) {
-        const userId = getUserIdFromToken(token)
-        if(userId) {
-            req.userId = userId
+    try {
+        if(getUserIdFromToken(token)) {
+            const userId = getUserIdFromToken(token)
+            if(userId) {
+                req.userId = userId
+            }
         }
+        next();
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({error: 'Erro interno no servidor'})
+        req.connection.destroy()
     }
 
-    next();
+
 };
 
 module.exports = { verifyToken, getUserIdFromToken, getUserIdMiddleware };

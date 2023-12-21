@@ -26,30 +26,6 @@ const getPosts = async (req, res) => {
     }
 };
 
-const getPostAuthorById = async (req, res) => {
-    const postId = req.params.postId;
-    try {
-        const query = `
-            SELECT users.name
-            FROM users
-            WHERE users.id = (SELECT posts.author_id FROM posts WHERE posts.id = ?)
-        `;
-        
-        const authorName = await queryAsync(query, [postId]);
-
-        if (authorName.length === 0) {
-            return res.status(404).json({ error: 'Autor não encontrado' });
-        }
-
-        res.status(200).json(authorName[0]);
-
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Erro interno no servidor' });
-    }
-}
-
-
 const getPostById = async (req, res) => {
     try {
         const postId = req.params.postId;
@@ -190,4 +166,4 @@ const deletePost = async (req, res) => {
     }
 };
 
-module.exports = { getPosts, getPostById, createPost, updatePost, deletePost, getPostAuthorById };
+module.exports = { getPosts, getPostById, createPost, updatePost, deletePost };

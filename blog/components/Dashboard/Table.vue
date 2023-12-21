@@ -121,12 +121,15 @@ export default {
     },
   },
   methods: {
-    editItem(item) {
+    async editItem(item) {
       const router = useRouter();
-      router.push(`/admin/posts/edit/${item.id}`);
+      const page = await router.currentRoute.value.matched[0].name.split('-')[1]
+      router.push(`/admin/${page}/edit/${item.id}`);
     },
-    goTo(item) {
-      this.$router.push(`/admin/posts/${item.id}`)
+    async goTo(item) {
+      const router = useRouter();
+      const page = await router.currentRoute.value.matched[0].name.split('-')[1]
+      router.push(`/admin/${page}/${item.id}`)
     },
     async openConfirm(itemId) {
       const data = {

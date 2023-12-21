@@ -7,6 +7,7 @@ const authRoutes = require('./routes/authRoutes');
 const postRoutes = require('./routes/postRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
 const commentRoutes = require('./routes/commentRoutes');
+const userRoutes = require('./routes/userRoutes');
 
 const app = express();
 const port = 3001;
@@ -19,6 +20,7 @@ app.use('/auth', authRoutes);
 app.use('/posts', postRoutes);
 app.use('/categories', categoryRoutes);
 app.use('/comments', commentRoutes);
+app.use('/users', userRoutes);
 
 // Rota Protegida (Exemplo)
 app.get('/protected', verifyToken, (req, res) => {

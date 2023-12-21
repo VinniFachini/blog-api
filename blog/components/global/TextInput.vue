@@ -46,7 +46,6 @@ export default {
       } else {
         classes.push("w-fit");
       }
-      console.log(classes.join(" "));
       return classes.join(" ");
     },
   },

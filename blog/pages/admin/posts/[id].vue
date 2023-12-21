@@ -44,13 +44,17 @@
         {{ paragraph }}
       </p>
     </div>
+    <ul v-if="postComments" class="postComments pt-2 rounded-md p-5 bg-slate-200">
+      <h2 class="text-xl mb-2 text-slate-700 font-bold">Comments</h2>
+      <Comment v-for="comment in postComments" :key="comment.id" :comment="comment" />
+    </ul>
     <ModalComponent :data="item" ref="pageModal" @confirm="handleConfirm" />
   </div>
 </template>
   
-  <style lang="scss" scoped>
-</style>
-    
+<style lang="scss" scoped>
+
+</style>    
   
   <script>
 import { useFetch } from "~/composables/api";
@@ -67,6 +71,7 @@ export default {
       createdAt: this.formatDates(),
       updatedAt: "",
       postContent: [],
+      postComments: [],
     };
   },
   methods: {
@@ -77,12 +82,20 @@ export default {
       );
       this.post = await response;
     },
+    async fetchPostComments() {
+      const response = await useFetch(
+        "http://localhost:3001",
+        `posts/${this.$route.params.id}/comments`
+      );
+      this.postComments = await response;
+      console.log(this.postComments)
+    },
     async fetchPostAuthorName() {
       const response = await useFetch(
         "http://localhost:3001",
-        `posts/${this.$route.params.id}/author`
+        `users/${this.post.author_id}`
       );
-      this.postAuthor = await response.name;
+      this.postAuthor = await response.username;
     },
     formatDates(a) {
       const dateObject = new Date(a);
@@ -150,6 +163,7 @@ export default {
   async created() {
     await this.fetchPostInfo();
     await this.fetchPostAuthorName();
+    await this.fetchPostComments();
     this.formatContent();
   },
   mounted() {},

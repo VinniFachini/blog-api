@@ -34,15 +34,51 @@ const getCommentsByPost = async (req, res) => {
     try {
         const postId = req.params.postId;
 
-        // Busca os comentários relacionados a um post específico
-        const comments = await queryAsync('SELECT * FROM comments WHERE post_id = ? AND approved = true', [postId]);
+        // Function to recursively fetch comments, replies, and associated user info
+        const fetchCommentsAndReplies = async (parentId = null) => {
+            const results = await queryAsync(`
+                SELECT 
+                    c.id, 
+                    c.content, 
+                    u.name AS user_name, 
+                    u.user_image, 
+                    u.username, 
+                    c.created_at
+                FROM comments c
+                JOIN users u ON c.user_id = u.id
+                WHERE c.post_id = ? AND c.approved = true AND c.parent_comment_id ${parentId ? '= ?' : 'IS NULL'}
+            `, parentId ? [postId, parentId] : [postId]);
 
-        res.status(200).json(comments);
+            const comments = [];
+
+            for (const comment of results) {
+                const replies = await fetchCommentsAndReplies(comment.id);
+                comments.push({
+                    id: comment.id,
+                    content: comment.content,
+                    user: {
+                        name: comment.user_name,
+                        user_image: comment.user_image,
+                        username: comment.username
+                    },
+                    created_at: comment.created_at,
+                    replies: replies
+                });
+            }
+
+            return comments;
+        };
+
+        // Fetch top-level comments (comments without a parent)
+        const topLevelComments = await fetchCommentsAndReplies();
+
+        res.status(200).json(topLevelComments);
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Erro interno no servidor' });
     }
 };
+
 
 const getUnapprovedComments = async (req, res) => {
     try {
