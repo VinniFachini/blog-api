@@ -7,7 +7,7 @@
         </NuxtLink>
       </div>
       <div class="links">
-        <NuxtLink to="/admin">
+        <NuxtLink to="/admin" activeClass="active">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
@@ -24,7 +24,7 @@
           </svg>
           <span>Analytics</span>
         </NuxtLink>
-        <NuxtLink to="/admin/posts">
+        <NuxtLink to="/admin/posts" activeClass="active" :class="{ 'active': isActiveRoute('/admin/posts') }">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
@@ -41,7 +41,7 @@
           </svg>
           <span>Posts</span>
         </NuxtLink>
-        <NuxtLink to="/admin/users">
+        <NuxtLink to="/admin/users" activeClass="active" :class="{ 'active': isActiveRoute('/admin/users') }">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
@@ -59,7 +59,7 @@
 
           <span>Users</span>
         </NuxtLink>
-        <NuxtLink to="/admin/comments">
+        <NuxtLink to="/admin/comments" activeClass="active" :class="{ 'active': isActiveRoute('/admin/comments') }">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
@@ -76,7 +76,7 @@
           </svg>
           <span>Comments</span>
         </NuxtLink>
-        <NuxtLink to="/admin/categories">
+        <NuxtLink to="/admin/categories" activeClass="active" :class="{ 'active': isActiveRoute('/admin/categories') }">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
@@ -134,6 +134,7 @@
   flex-direction: column;
   align-items: flex-start;
   justify-content: space-between;
+  max-width: 250px;
   .top-section {
     width: 100%;
     .header {
@@ -163,7 +164,7 @@
         &:hover {
           background-color: #ffffff;
         }
-        &.router-link-active.router-link-exact-active {
+        &.active {
           background-color: #2966cc;
           color: white;
         }
@@ -193,14 +194,27 @@
 
 <script>
 export default {
-  async setup() {
+  async setup() {},
+  data() {
+    return {
+      activeRoutes: [
+        "/admin",
+        "/admin/posts",
+        "/admin/users",
+        "/admin/comments",
+        "/admin/categories",
+      ],
+    };
   },
   methods: {
     async logoutUser() {
-      const { session, refresh, update, reset } = await useSession()
-      reset()
-      this.$router.push('/login')
+      const { session, refresh, update, reset } = await useSession();
+      reset();
+      this.$router.push("/login");
     },
+    isActiveRoute(route) {
+    return this.$route.path.startsWith(route);
+  },
   },
 };
 </script>

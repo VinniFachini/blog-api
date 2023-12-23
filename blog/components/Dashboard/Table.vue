@@ -2,6 +2,44 @@
 
 <template>
   <div>
+    <div class="mb-4 flex items-center space-x-2">
+      <div
+        v-if="
+          selectedFilter === 'created_at' || selectedFilter === 'updated_at'
+        "
+        class="flex space-x-2"
+      >
+        <input
+          v-model="startDateFilter"
+          type="date"
+          placeholder="Start Date"
+          class="p-2 border rounded-md"
+        />
+        <input
+          v-model="endDateFilter"
+          type="date"
+          placeholder="End Date"
+          class="p-2 border rounded-md"
+        />
+      </div>
+
+      <input
+        v-else
+        v-model="filterValue"
+        type="text"
+        placeholder="Filter value..."
+        class="p-2 border rounded-md"
+      />
+
+      <!-- Updated select dropdown using v-for -->
+      <select v-model="selectedFilter" class="p-2 border rounded-md">
+        <option v-for="field in filterableFields" :key="field" :value="field">
+          {{ field.charAt(0).toUpperCase() + field.slice(1).replace("_", " ") }}
+          <!-- Assuming you want to format the field name for display -->
+        </option>
+      </select>
+    </div>
+
     <table class="w-full bg-white shadow-md rounded-md overflow-hidden">
       <thead class="bg-gray-100">
         <tr>
@@ -14,7 +52,11 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="item in data" :key="item.id" class="hover:bg-gray-50">
+        <tr
+          v-for="item in filteredData"
+          :key="item.id"
+          class="hover:bg-gray-50"
+        >
           <td
             v-for="field in fields"
             :key="field"
@@ -34,10 +76,7 @@
             }}
           </td>
           <td class="py-2 px-4 text-center">
-            <button
-              @click="goTo(item)"
-              class="text-green-500 hover:underline"
-            >
+            <button @click="goTo(item)" class="text-green-500 hover:underline">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="currentColor"
@@ -108,6 +147,15 @@ export default {
     data: Array,
     fields: Array,
   },
+  data() {
+    return {
+      selectedFilter: "id",
+      filterValue: "",
+      startDateFilter: "", // Start date for time range filtering
+      endDateFilter: "", // End date for time range filtering
+      filterableFields: []
+    };
+  },
   computed: {
     formattedFields() {
       return this.fields.map((field) => {
@@ -119,17 +167,68 @@ export default {
     specialFields() {
       return ["categories", "other_special_field"]; // Add your special fields here
     },
+    filteredData() {
+      const filterValue = this.filterValue.toLowerCase();
+      const startDateFilter = this.startDateFilter; // Retrieve start date filter value
+      const endDateFilter = this.endDateFilter; // Retrieve end date filter value
+      this.filterableFields = this.fields.filter(item => item != 'categories').filter(item => item != 'content')
+      return this.data.filter((item) => {
+        switch (this.selectedFilter) {
+          case "id":
+            return String(item.id).toLowerCase().includes(filterValue);
+          case "title":
+            return item.title.toLowerCase().includes(filterValue);
+          case "created_at":
+            const createdDate = new Date(item.created_at);
+            return (
+              createdDate >= new Date(startDateFilter) &&
+              createdDate <= new Date(endDateFilter)
+            );
+          case "updated_at":
+            const updatedDate = new Date(item.updated_at);
+            return (
+              updatedDate >= new Date(startDateFilter) &&
+              updatedDate <= new Date(endDateFilter)
+            );
+          case "author_id":
+            return String(item.author_id).toLowerCase().includes(filterValue);
+          default:
+            return true;
+        }
+      });
+    },
   },
   methods: {
     async editItem(item) {
       const router = useRouter();
-      const page = await router.currentRoute.value.matched[0].name.split('-')[1]
+      const page = await router.currentRoute.value.matched[0].name.split(
+        "-"
+      )[1];
       router.push(`/admin/${page}/edit/${item.id}`);
+    },
+    setInitialDateFilters() {
+      const today = new Date();
+      const firstDayOfMonth = new Date(
+        today.getFullYear(),
+        today.getMonth(),
+        1
+      );
+      const lastDayOfMonth = new Date(
+        today.getFullYear(),
+        today.getMonth() + 1,
+        0
+      );
+
+      // Set initial values for date filters
+      this.startDateFilter = firstDayOfMonth.toISOString().split("T")[0]; // Format: YYYY-MM-DD
+      this.endDateFilter = lastDayOfMonth.toISOString().split("T")[0]; // Format: YYYY-MM-DD
     },
     async goTo(item) {
       const router = useRouter();
-      const page = await router.currentRoute.value.matched[0].name.split('-')[1]
-      router.push(`/admin/${page}/${item.id}`)
+      const page = await router.currentRoute.value.matched[0].name.split(
+        "-"
+      )[1];
+      router.push(`/admin/${page}/${item.id}`);
     },
     async openConfirm(itemId) {
       const data = {
@@ -172,6 +271,10 @@ export default {
       // You might need to adjust this based on your actual data structure
       return Array.isArray(value) ? value.join(", ") : value;
     },
+  },
+  mounted() {
+    this.setInitialDateFilters();
+    console.log(this.$props);
   },
 };
 </script>

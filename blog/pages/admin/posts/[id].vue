@@ -44,7 +44,7 @@
         {{ paragraph }}
       </p>
     </div>
-    <ul v-if="postComments" class="postComments pt-2 rounded-md p-5 bg-slate-200">
+    <ul v-if="postComments.length > 0" class="postComments pt-2 rounded-md p-5 bg-slate-200">
       <h2 class="text-xl mb-2 text-slate-700 font-bold">Comments</h2>
       <Comment v-for="comment in postComments" :key="comment.id" :comment="comment" />
     </ul>
@@ -62,6 +62,7 @@ export default {
   setup() {
     definePageMeta({
       layout: "dashboard",
+      name: 'posts'
     });
   },
   data() {
