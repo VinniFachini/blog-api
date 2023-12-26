@@ -200,11 +200,13 @@ export default {
   },
   methods: {
     async editItem(item) {
-      const router = useRouter();
-      const page = await router.currentRoute.value.matched[0].name.split(
+      const router = await useRoute();
+      // let page = router
+      const page = await router.matched[0].name.split(
         "-"
       )[1];
-      router.push(`/admin/${page}/edit/${item.id}`);
+      console.log(router)
+      this.$router.push(`/admin/${page}/edit/${item.id}`);
     },
     setInitialDateFilters() {
       const today = new Date();
@@ -241,7 +243,7 @@ export default {
       await this.$refs.pageModal.openModal(data);
     },
     async handleConfirm({ data }) {
-      await useFetch("http://localhost:3001", `posts/${data}`, "DELETE");
+      await this.$useFetch(`posts/${data}`, "DELETE");
       this.$router.go();
     },
     truncateText(text) {
@@ -274,7 +276,6 @@ export default {
   },
   mounted() {
     this.setInitialDateFilters();
-    console.log(this.$props);
   },
 };
 </script>

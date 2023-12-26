@@ -42,27 +42,6 @@
 </template>
 
 <script>
-import { useAuth } from "~/composables/auth";
-const { session, refresh, update, reset } = await useSession();
-const validateToken = async () => {
-  const router = useRouter();
-  const { session, update, reset } = await useSession();
-  const dateString = session.value.createdAt;
-  let dateObject = new Date(dateString);
-  dateObject.setHours(
-    dateObject.getHours() + session.value.expiresIn / 3600
-  );
-  const dateNow = new Date();
-  const isTokenValid = !dateObject > dateNow;
-  if (isTokenValid) {
-    router.push("/login");
-    reset();
-    return false;
-  } else {
-    update(isTokenValid);
-    return true;
-  }
-};
 export default {
   data() {
     return {
@@ -72,13 +51,11 @@ export default {
   },
   methods: {
     async handleLogin(username, password) {
-      const { login } = await useAuth();
-      const loginResponse = await login({ username, password });
-      update(loginResponse);
-      this.redirect();
+      await this.$loginUser({ username, password });
+      this.redirect()
     },
     async redirect() {
-      const result = validateToken();
+      const result = await this.$validateToken();
       if (result) {
         this.$router.push("/admin");
       } else {

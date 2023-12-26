@@ -56,8 +56,7 @@
 
 </style>    
   
-  <script>
-import { useFetch } from "~/composables/api";
+<script>
 export default {
   setup() {
     definePageMeta({
@@ -77,23 +76,20 @@ export default {
   },
   methods: {
     async fetchPostInfo() {
-      const response = await useFetch(
-        "http://localhost:3001",
+      const response = await this.$useFetch(
         `posts/${this.$route.params.id}`
       );
       this.post = await response;
     },
     async fetchPostComments() {
-      const response = await useFetch(
-        "http://localhost:3001",
+      const response = await this.$useFetch(
         `posts/${this.$route.params.id}/comments`
       );
       this.postComments = await response;
       console.log(this.postComments)
     },
     async fetchPostAuthorName() {
-      const response = await useFetch(
-        "http://localhost:3001",
+      const response = await this.$useFetch(
         `users/${this.post.author_id}`
       );
       this.postAuthor = await response.username;

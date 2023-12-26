@@ -20,5 +20,8 @@ export default defineNuxtConfig({
     session: {
       expiryInSeconds: 3600,
     }
-  }
+  },
+  plugins: [
+    '~/plugins/auth.js'
+  ]
 })

@@ -223,7 +223,6 @@ form {
   
 
 <script>
-import { useFetch } from "~/composables/api";
 export default {
   setup() {
     definePageMeta({
@@ -267,7 +266,7 @@ export default {
       await this.$refs.pageModal.openModal(data);
     },
     async handleConfirm({data}) {
-      await useFetch("http://localhost:3001", `posts/${data}`, "DELETE");
+      await this.$useFetch(`posts/${data}`, "DELETE");
       this.$router.push('/admin/posts');
     },
     async editPost() {
@@ -277,8 +276,7 @@ export default {
         content: this.postContent != "" ? this.postContent : this.post.content,
         categories: categories,
       };
-      await useFetch(
-        "http://localhost:3001",
+      await this.$useFetch(
         `posts/${this.$route.params.id}`,
         "PATCH",
         data
@@ -286,8 +284,7 @@ export default {
       this.fetchPostInfo();
     },
     async excludePost() {
-      await useFetch(
-        "http://localhost:3001",
+      await this.$useFetch(
         `posts/${this.$route.params.id}`,
         "DELETE"
       );
@@ -305,7 +302,6 @@ export default {
       } else {
         console.error("Action no specified!");
       }
-      console.log(item, action);
     },
     getDisabledFields(givenField) {
       return givenField == "created_at" ||
@@ -327,14 +323,13 @@ export default {
       }
     },
     async fetchPostInfo() {
-      const response = await useFetch(
-        "http://localhost:3001",
+      const response = await this.$useFetch(
         `posts/${this.$route.params.id}`
       );
       this.post = response;
       this.postCategories = response.categories;
       this.fields = Object.keys(response);
-      let categories = await useFetch("http://localhost:3001", `categories`);
+      let categories = await this.$useFetch(`categories`);
       this.categories = categories;
 
       const matchingCategory = Array.from(this.postCategories).map((item) => {
@@ -348,7 +343,6 @@ export default {
       );
 
       this.postContent = response.content
-      console.log(response)
 
     },
   },

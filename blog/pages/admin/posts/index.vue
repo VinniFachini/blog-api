@@ -29,96 +29,29 @@
       </NuxtLink>
     </div>
     <!-- Display the paginated posts using DashboardTable component -->
-    <DashboardTable :data="paginatedPosts" :fields="postsFields" />
-    <!-- Pagination controls -->
-    <div v-if="totalPages > 1" class="pagination">
-      <button @click="prevPage" :disabled="currentPage === 1">Previous</button>
-      <div class="numbered-buttons">
-        <button
-          v-for="page in totalPages"
-          :key="page"
-          @click="goToPage(page)"
-          :class="{ active: currentPage === page }"
-        >
-          {{ page }}
-        </button>
-      </div>
-      <button @click="nextPage" :disabled="currentPage === totalPages">Next</button>
-    </div>
+    <DashboardTable :data="posts" :fields="postsFields" />
   </div>
 </template>
 
+<script setup>
+definePageMeta({
+  layout: "dashboard",
+});
+</script>
+
 <script>
-import { useFetch } from "~/composables/api";
-import { ref, watch, computed } from "vue";
-
 export default {
-  setup() {
-    // Define page meta
-    definePageMeta({
-      layout: "dashboard",
-    });
-
-    // Reactive variables
-    const currentPage = ref(1);
-    const perPage = 9; // Number of items per page
-    const posts = ref([]);
-    const postsFields = ref([]);
-
-    // Fetch posts from API
-    const fetchPosts = async () => {
-      try {
-        const response = await useFetch(
-          "http://localhost:3001",
-          "posts",
-          "GET"
-        );
-
-        // Set posts and fields
-        postsFields.value = Object.keys(response[0]);
-        posts.value = response;
-      } catch (error) {
-        console.error("Error fetching posts:", error);
-      }
-    };
-
-    // Watch for changes in currentPage and fetch data accordingly
-    watch(currentPage, fetchPosts, { immediate: true });
-
-    // Pagination methods
-    const nextPage = () => {
-      currentPage.value += 1;
-    };
-
-    const prevPage = () => {
-      currentPage.value -= 1;
-    };
-
-    const goToPage = (page) => {
-      currentPage.value = page;
-    };
-
-    // Computed properties
-    const totalPages = computed(() => Math.ceil(posts.value.length / perPage));
-
-    // Slice posts based on currentPage for pagination
-    const paginatedPosts = computed(() => {
-      const start = (currentPage.value - 1) * perPage;
-      const end = start + perPage;
-      return posts.value.slice(start, end);
-    });
-
+  data() {
     return {
-      currentPage,
-      posts,
-      postsFields,
-      nextPage,
-      prevPage,
-      totalPages,
-      paginatedPosts,
-      goToPage,
-    };
+      posts: [],
+      postsFields: []
+    }
   },
+  async mounted() {
+    const response = await this.$useFetch('posts')
+    this.posts = response
+    this.postsFields = Object.keys(response[0])
+  }
 };
 </script>
 
@@ -153,7 +86,7 @@ export default {
     min-height: 40px;
     max-height: 40px;
     line-height: 1 !important;
-    transition: all .2s linear;
+    transition: all 0.2s linear;
   }
 
   button:hover {
@@ -166,7 +99,7 @@ export default {
 
     button {
       padding: 8px;
-      transition: all .2s linear;
+      transition: all 0.2s linear;
       margin: 0 4px;
       border: 1px solid #4a90e2;
       border-radius: 3px; // Square border-radius

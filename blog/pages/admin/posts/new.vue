@@ -145,7 +145,7 @@ export default {
       }
     },
     async getCategories() {
-      let categories = await useFetch("http://localhost:3001", `categories`);
+      let categories = await this.$useFetch(`categories`);
       this.categories = categories;
       this.postCategoriesRemains = categories;
     },
@@ -158,7 +158,7 @@ export default {
           content: this.postContent,
           categoryIds: categoriesId
         }
-        await useFetch('http://localhost:3001', 'posts', 'POST', postData)
+        await this.$useFetch( 'posts', 'POST', postData)
         this.postTitle = ''
         this.postContent = ''
         this.postCategories = []
