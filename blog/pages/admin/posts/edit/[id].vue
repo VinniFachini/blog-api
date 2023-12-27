@@ -50,11 +50,11 @@
         :placeholder="getFieldLabel(field)"
         :modelValue="postContent"
         rows="8"
-        :value="postContent"
+        :value="post.content"
         v-model="postContent"
         class="contentField"
         />
-
+        
         
         <div v-else-if="field == 'categories'" class="categories">
           <div class="categories-buttons">
@@ -281,7 +281,7 @@ export default {
         "PATCH",
         data
       );
-      this.fetchPostInfo();
+      this.$router.back();
     },
     async excludePost() {
       await this.$useFetch(
@@ -326,14 +326,15 @@ export default {
       const response = await this.$useFetch(
         `posts/${this.$route.params.id}`
       );
-      this.post = response;
-      this.postCategories = response.categories;
+      this.post = await response;
+      this.postCategories = await response.categories;
+      console.log(this.postCategories)
       this.fields = Object.keys(response);
       let categories = await this.$useFetch(`categories`);
       this.categories = categories;
 
       const matchingCategory = Array.from(this.postCategories).map((item) => {
-        return Array.from(this.categories).find((cat) => cat.name === item);
+        return Array.from(this.categories).find((cat) => cat.name === item.name);
       });
 
       this.postCategories = matchingCategory;
@@ -348,6 +349,7 @@ export default {
   },
   async created() {
     this.fetchPostInfo();
+    console.log(this.$data)
   },
 };
 </script>

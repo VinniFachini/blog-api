@@ -8,12 +8,18 @@ export default defineNuxtConfig({
       autoprefixer: {},
     },
   },
-  generate: {
-    routes: [
-      '/admin/posts/edit/:id',
-      '/admin/posts/:id',
-    ]
-  },
+  // generate: {
+  //   routes: [
+  //     '/admin/posts/edit/:id',
+  //     '/admin/posts/:id',
+
+  //     '/admin/categories/edit/:id',
+  //     '/admin/categories/:id',
+
+  //     '/admin/comments/edit/:id',
+  //     '/admin/comments/:id',
+  //   ]
+  // },
   modules: ['@sidebase/nuxt-session'],
   session: {
     isEnabled: true,
@@ -22,6 +28,7 @@ export default defineNuxtConfig({
     }
   },
   plugins: [
-    '~/plugins/auth.js'
+    '~/plugins/auth.js',
+    '~/plugins/api.js'
   ]
 })

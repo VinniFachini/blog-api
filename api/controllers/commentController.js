@@ -79,27 +79,55 @@ const getCommentsByPost = async (req, res) => {
     }
 };
 
-
 const getUnapprovedComments = async (req, res) => {
     try {
-        const unnaprovedComments = await queryAsync('SELECT * FROM comments WHERE approved = false')
-        res.status(200).json(unnaprovedComments)
-    } catch (error) {
-        console.log(error)
-        res.status(500).json({ error: 'Erro interno no servidor'})
-    }
-}
+        const unapprovedComments = await queryAsync(`
+            SELECT 
+                c.id, 
+                c.content, 
+                c.post_id,
+                u.username AS username,
+                pc.id AS parent_comment_id
+            FROM comments c
+            JOIN users u ON c.user_id = u.id
+            LEFT JOIN comments pc ON c.parent_comment_id = pc.id
+            WHERE c.approved = false
+        `);
 
-const getUnnaprovedCommentById = async (req, res) => {
+        res.status(200).json(unapprovedComments);
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ error: 'Erro interno no servidor' });
+    }
+};
+
+const getUnapprovedCommentById = async (req, res) => {
     try {
         const commentId = req.params.commentId;
-        const comment = await queryAsync('SELECT * FROM comments WHERE id = ? AND approved = false', [commentId])
-        res.status(200).json(comment)
+
+        const comment = await queryAsync(`
+            SELECT 
+                c.id, 
+                c.content, 
+                c.post_id,
+                u.username AS username,
+                pc.id AS parent_comment_id
+            FROM comments c
+            JOIN users u ON c.user_id = u.id
+            LEFT JOIN comments pc ON c.parent_comment_id = pc.id
+            WHERE c.id = ? AND c.approved = false
+        `, [commentId]);
+
+        if (comment.length === 0) {
+            return res.status(404).json({ error: 'Unapproved comment not found' });
+        }
+
+        res.status(200).json(comment[0]);
     } catch (error) {
-        console.log(error)
-        res.status(500).json({error: 'Erro interno no servidor'})
+        console.log(error);
+        res.status(500).json({ error: 'Erro interno no servidor' });
     }
-}
+};
 
 const approveComment = async (req, res) => {
     try {
@@ -120,4 +148,27 @@ const approveComment = async (req, res) => {
     }
 }
 
-module.exports = { createComment, getCommentsByPost, getUnapprovedComments, getUnnaprovedCommentById, approveComment };
+const deleteComment = async (req, res) => {
+    try {
+        const commentId = req.params.commentId;
+
+        // Recursively delete child comments
+        const deleteCommentsRecursively = async (commentId) => {
+            const childComments = await queryAsync('SELECT id FROM comments WHERE parent_comment_id = ?', [commentId]);
+            for (const childComment of childComments) {
+                await deleteCommentsRecursively(childComment.id);
+            }
+            await queryAsync('DELETE FROM comments WHERE id = ?', [commentId]);
+        };
+
+        // Start the recursive deletion
+        await deleteCommentsRecursively(commentId);
+
+        res.status(200).json({ message: 'Comentário e todos os seus filhos excluídos com sucesso' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Erro interno no servidor ao excluir comentário' });
+    }
+};
+
+module.exports = { createComment, getCommentsByPost, getUnapprovedComments, getUnapprovedCommentById, approveComment, deleteComment };

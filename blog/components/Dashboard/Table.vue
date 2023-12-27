@@ -1,7 +1,7 @@
 <!-- components/DataTable.vue -->
 
 <template>
-  <div>
+  <div v-if="data.length > 0">
     <div class="mb-4 flex items-center space-x-2">
       <div
         v-if="
@@ -34,7 +34,12 @@
       <!-- Updated select dropdown using v-for -->
       <select v-model="selectedFilter" class="p-2 border rounded-md">
         <option v-for="field in filterableFields" :key="field" :value="field">
-          {{ field.charAt(0).toUpperCase() + field.slice(1).replace("_", " ") }}
+          {{
+            field
+              .split("_")
+              .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+              .join(" ")
+          }}
           <!-- Assuming you want to format the field name for display -->
         </option>
       </select>
@@ -46,8 +51,8 @@
           <th v-for="field in formattedFields" :key="field" class="py-2 px-4">
             {{ field }}
           </th>
-          <th class="py-2 px-4">Read</th>
-          <th class="py-2 px-4">Edit</th>
+          <th class="py-2 px-4">{{ canRead ? "Read" : "Approve" }}</th>
+          <th class="py-2 px-4">{{ canRead ? "Edit" : "" }}</th>
           <th class="py-2 px-4">Delete</th>
         </tr>
       </thead>
@@ -76,7 +81,11 @@
             }}
           </td>
           <td class="py-2 px-4 text-center">
-            <button @click="goTo(item)" class="text-green-500 hover:underline">
+            <button
+              v-if="canRead"
+              @click="goTo(item)"
+              class="text-green-500 hover:underline"
+            >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="currentColor"
@@ -91,9 +100,30 @@
                 <path d="M6 7h12v2H6zm0 4h12v2H6zm0 4h6v2H6z"></path>
               </svg>
             </button>
+            <button
+              v-else
+              @click="approveComment(item.id)"
+              class="text-green-500 hover:underline"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+                class="w-6 h-6"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                />
+              </svg>
+            </button>
           </td>
           <td class="py-2 px-4 text-center">
             <button
+            v-if="canRead"
               @click="editItem(item)"
               class="text-blue-500 hover:underline"
             >
@@ -116,7 +146,7 @@
           </td>
           <td class="py-2 px-4 text-center">
             <button
-              @click="openConfirm(item.id)"
+              @click="deleteItem(item.id)"
               class="text-red-500 hover:underline"
             >
               <svg
@@ -139,6 +169,9 @@
       </tbody>
     </table>
   </div>
+  <div class="text-xl" v-else>
+    There are no Data to be displayed!
+  </div>
 </template>
   
   <script>
@@ -146,6 +179,7 @@ export default {
   props: {
     data: Array,
     fields: Array,
+    canRead: Boolean,
   },
   data() {
     return {
@@ -153,7 +187,7 @@ export default {
       filterValue: "",
       startDateFilter: "", // Start date for time range filtering
       endDateFilter: "", // End date for time range filtering
-      filterableFields: []
+      filterableFields: [],
     };
   },
   computed: {
@@ -171,13 +205,25 @@ export default {
       const filterValue = this.filterValue.toLowerCase();
       const startDateFilter = this.startDateFilter; // Retrieve start date filter value
       const endDateFilter = this.endDateFilter; // Retrieve end date filter value
-      this.filterableFields = this.fields.filter(item => item != 'categories').filter(item => item != 'content')
+      this.filterableFields = this.fields
+        .filter((item) => item != "categories")
+        .filter((item) => item != "content");
       return this.data.filter((item) => {
         switch (this.selectedFilter) {
           case "id":
             return String(item.id).toLowerCase().includes(filterValue);
+          case "post_id":
+            return String(item.post_id).toLowerCase().includes(filterValue);
+          case "parent_comment_id":
+            return String(item.parent_comment_id)
+              .toLowerCase()
+              .includes(filterValue);
           case "title":
             return item.title.toLowerCase().includes(filterValue);
+          case "name":
+            return item.name.toLowerCase().includes(filterValue);
+          case "username":
+            return item.username.toLowerCase().includes(filterValue);
           case "created_at":
             const createdDate = new Date(item.created_at);
             return (
@@ -200,13 +246,22 @@ export default {
   },
   methods: {
     async editItem(item) {
-      const router = await useRoute();
-      // let page = router
-      const page = await router.matched[0].name.split(
-        "-"
-      )[1];
-      console.log(router)
+      const page =
+        this.$route.name.split("-").length > 1
+          ? this.$route.name.split("-")[1]
+          : this.$route.name;
       this.$router.push(`/admin/${page}/edit/${item.id}`);
+    },
+    async approveComment(item) {
+      const data = {
+        title: `Approving Comment`,
+        message: `Approving Comment ID: ${item}. Are you sure?`,
+        isConfirm: true,
+        type: "danger",
+        data: item,
+        method: 'PATCH'
+      };
+      await this.$refs.pageModal.openModal(data);
     },
     setInitialDateFilters() {
       const today = new Date();
@@ -226,29 +281,40 @@ export default {
       this.endDateFilter = lastDayOfMonth.toISOString().split("T")[0]; // Format: YYYY-MM-DD
     },
     async goTo(item) {
-      const router = useRouter();
-      const page = await router.currentRoute.value.matched[0].name.split(
-        "-"
-      )[1];
-      router.push(`/admin/${page}/${item.id}`);
+      const page =
+        this.$route.name.split("-").length > 1
+          ? this.$route.name.split("-")[1]
+          : this.$route.name;
+      this.$router.push(`/admin/${page}/${item.id}`);
     },
-    async openConfirm(itemId) {
+    async deleteItem(itemId) {
       const data = {
-        title: `Are you sure you want to delete Post: ${itemId}`,
-        message: `By deleting Post ${itemId} you are going to delete all of its comments. Are you sure?`,
+        title: `Deleting: ${itemId}`,
+        message: `Deleting item ${itemId}. Are you sure?`,
         isConfirm: true,
         type: "danger",
         data: itemId,
+        method: 'DELETE'
       };
       await this.$refs.pageModal.openModal(data);
     },
-    async handleConfirm({ data }) {
-      await this.$useFetch(`posts/${data}`, "DELETE");
+    async handleConfirm(data) {
+      const page =
+        this.$route.name.split("-").length > 1
+          ? this.$route.name.split("-")[1]
+          : this.$route.name;
+
+      if(data.method == 'DELETE') {
+        await this.$useFetch(`${page}/${data.data}`, data.method);
+      } else if (data.method == 'PATCH') {
+        await this.$useFetch(`${page}/${data.data}/approve`, data.method);
+      }
+
       this.$router.go();
     },
     truncateText(text) {
       const maxLength = 45;
-      return text.length > maxLength
+      return text && text.length > maxLength
         ? text.substring(0, maxLength) + "..."
         : text;
     },
@@ -276,6 +342,7 @@ export default {
   },
   mounted() {
     this.setInitialDateFilters();
+    console.log(this.fields);
   },
 };
 </script>

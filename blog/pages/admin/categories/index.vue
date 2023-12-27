@@ -1,11 +1,11 @@
 <template>
   <div class="content">
     <Head>
-      <Title>Dashboard | Posts</Title>
+      <Title>Dashboard | Categories</Title>
     </Head>
-    <div class="posts-header">
-      <h1 class="text-4xl">Posts</h1>
-      <NuxtLink to="/admin/posts/new">
+    <div class="categories-header">
+      <h1 class="text-4xl">Categories</h1>
+      <NuxtLink to="/admin/categories/new">
         <ButtonInput
           class="custom-button bg-blue-500 hover:bg-blue-600 text-white rounded-md py-2 px-4 mt-4 transition-all duration-300 ease-in-out"
         >
@@ -21,37 +21,46 @@
             <path
               stroke-linecap="round"
               stroke-linejoin="round"
-              d="M12 10.5v6m3-3H9m4.06-7.19l-2.12-2.12a1.5 1.5 0 00-1.061-.44H4.5A2.25 2.25 0 002.25 6v12a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9a2.25 2.25 0 00-2.25-2.25h-5.379a1.5 1.5 0 01-1.06-.44z"
+              d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z"
+            />
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M6 6h.008v.008H6V6z"
             />
           </svg>
-          <span>New Post</span>
+          <span>New Category</span>
         </ButtonInput>
       </NuxtLink>
     </div>
     <!-- Display the paginated posts using DashboardTable component -->
-    <DashboardTable :data="posts" :fields="postsFields" :canRead="true" />
+    <DashboardTable
+      :data="categories"
+      :fields="categorieFields"
+      :canRead="true"
+    />
   </div>
 </template>
 
 <script setup>
 definePageMeta({
-  layout: "dashboard",
-});
+      layout: "dashboard",
+    });
 </script>
 
 <script>
 export default {
   data() {
     return {
-      posts: [],
-      postsFields: []
-    }
+      categories: [],
+      categorieFields: [],
+    };
   },
   async mounted() {
-    const response = await this.$useFetch('posts')
-    this.posts = response
-    this.postsFields = Object.keys(response[0])
-  }
+    const response = await this.$useFetch("categories");
+    this.categories = response;
+    this.categorieFields = Object.keys(response[0]);
+  },
 };
 </script>
 
@@ -64,7 +73,7 @@ export default {
   margin: 0 !important;
 }
 
-.posts-header {
+.categories-header {
   display: flex;
   align-items: center;
   justify-content: space-between;

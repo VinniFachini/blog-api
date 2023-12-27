@@ -47,9 +47,8 @@ export default {
   methods: {
     async verify() {
       const result = await this.$validateToken()
-      const router = useRoute()
       if(!result) {
-        router.push('/login')
+        this.$router.push('/login')
       }
     },
   },

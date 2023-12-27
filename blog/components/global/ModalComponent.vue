@@ -84,17 +84,19 @@ export default {
       message: "",
       isConfirm: false,
       data: null,
-      type: ''
+      type: '',
+      method: ''
     };
   },
   methods: {
-    openModal({ title, message, isConfirm, data, type }) {
+    openModal({ title, message, isConfirm, data, type, method }) {
       this.title = title;
       this.message = message;
       this.isConfirm = isConfirm;
       this.type = type
       this.showModal = true;
       this.data = data;
+      this.method = method
     },
     closeModal() {
       this.showModal = false;
@@ -109,6 +111,7 @@ export default {
         isConfirm: this.isConfirm,
         // Additional arguments are spread into the object
         data: this.data,
+        method: this.method
       });
     },
   },

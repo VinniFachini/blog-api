@@ -24,7 +24,11 @@
           </svg>
           <span>Analytics</span>
         </NuxtLink>
-        <NuxtLink to="/admin/posts" activeClass="active" :class="{ 'active': isActiveRoute('/admin/posts') }">
+        <NuxtLink
+          to="/admin/posts"
+          activeClass="active"
+          :class="{ active: isActiveRoute('/admin/posts') }"
+        >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
@@ -41,7 +45,11 @@
           </svg>
           <span>Posts</span>
         </NuxtLink>
-        <NuxtLink to="/admin/users" activeClass="active" :class="{ 'active': isActiveRoute('/admin/users') }">
+        <NuxtLink
+          to="/admin/users"
+          activeClass="active"
+          :class="{ active: isActiveRoute('/admin/users') }"
+        >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
@@ -56,27 +64,38 @@
               d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z"
             />
           </svg>
-
           <span>Users</span>
         </NuxtLink>
-        <NuxtLink to="/admin/comments" activeClass="active" :class="{ 'active': isActiveRoute('/admin/comments') }">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke-width="1.5"
-            stroke="currentColor"
-            class="w-6 h-6"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M8.625 9.75a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375m-13.5 3.01c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.184-4.183a1.14 1.14 0 01.778-.332 48.294 48.294 0 005.83-.498c1.585-.233 2.708-1.626 2.708-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"
-            />
-          </svg>
-          <span>Comments</span>
+        <NuxtLink
+          to="/admin/comments"
+          activeClass="active"
+          style="justify-content: space-between"
+          :class="{ active: isActiveRoute('/admin/comments') }"
+        >
+          <div class="item flex gap-3">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="w-6 h-6"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M8.625 9.75a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375m-13.5 3.01c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.184-4.183a1.14 1.14 0 01.778-.332 48.294 48.294 0 005.83-.498c1.585-.233 2.708-1.626 2.708-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"
+              />
+            </svg>
+            <span>Comments</span>
+          </div>
+          <span v-if="commentsCounter > 0" class="commentsCounter">{{ commentsCounter }}</span>
         </NuxtLink>
-        <NuxtLink to="/admin/categories" activeClass="active" :class="{ 'active': isActiveRoute('/admin/categories') }">
+        <NuxtLink
+          to="/admin/categories"
+          activeClass="active"
+          :class="{ active: isActiveRoute('/admin/categories') }"
+        >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
@@ -154,19 +173,36 @@
       a {
         background-color: transparent;
         width: 100%;
-        padding: 10px 0 10px 20px;
+        padding: 10px 20px 10px 20px;
         border-radius: 10px;
         transition: all 0.1s linear;
         display: flex;
         align-items: center;
         justify-content: flex-start;
-        gap: 10px;
+        gap: 0.75rem;
+        height: 50px;
         &:hover {
           background-color: #ffffff;
         }
         &.active {
           background-color: #2966cc;
           color: white;
+          .commentsCounter {
+            background-color: white;
+            color: #2966cc;
+          }
+        }
+        .commentsCounter {
+          background-color: #ef4444;
+          width: 30px;
+          height: 30px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 50%;
+          color: white;
+          aspect-ratio: 1/1;
+          font-weight: bold;
         }
       }
     }
@@ -204,6 +240,7 @@ export default {
         "/admin/comments",
         "/admin/categories",
       ],
+      commentsCounter: 0
     };
   },
   methods: {
@@ -213,8 +250,14 @@ export default {
       this.$router.push("/login");
     },
     isActiveRoute(route) {
-    return this.$route.path.startsWith(route);
+      return this.$route.path.startsWith(route);
+    },
   },
-  },
+  async mounted() {
+    const response = await this.$useFetch('comments')
+    let length = await response.length
+    this.commentsCounter = length
+    console.log(this.commentsCounter)
+  }
 };
 </script>

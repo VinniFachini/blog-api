@@ -9,7 +9,7 @@
         <span
           class="authorName text-sm text-gray-400 hover:text-blue-500 hover:underline cursor-default"
         >
-          {{ postAuthor }}
+          {{ post.author }}
         </span>
         <span
           v-if="post.created_at != post.updated_at"
@@ -26,10 +26,11 @@
         <ul class="categories flex gap-1 text-sm">
           <li
             v-for="category in post.categories"
-            :key="category"
+            :key="category.id"
             class="category text-gray-700 hover:underline hover:text-blue-500 cursor-pointer"
+            @click="goToCategory(category.id)"
           >
-            {{ category }}
+            {{ category.name }}
           </li>
         </ul>
       </div>
@@ -44,16 +45,22 @@
         {{ paragraph }}
       </p>
     </div>
-    <ul v-if="postComments.length > 0" class="postComments pt-2 rounded-md p-5 bg-slate-200">
+    <ul
+      v-if="postComments.length > 0"
+      class="postComments pt-2 rounded-md p-5 bg-slate-200"
+    >
       <h2 class="text-xl mb-2 text-slate-700 font-bold">Comments</h2>
-      <Comment v-for="comment in postComments" :key="comment.id" :comment="comment" />
+      <Comment
+        v-for="comment in postComments"
+        :key="comment.id"
+        :comment="comment"
+      />
     </ul>
     <ModalComponent :data="item" ref="pageModal" @confirm="handleConfirm" />
   </div>
 </template>
   
 <style lang="scss" scoped>
-
 </style>    
   
 <script>
@@ -61,7 +68,7 @@ export default {
   setup() {
     definePageMeta({
       layout: "dashboard",
-      name: 'posts'
+      name: "posts",
     });
   },
   data() {
@@ -76,9 +83,7 @@ export default {
   },
   methods: {
     async fetchPostInfo() {
-      const response = await this.$useFetch(
-        `posts/${this.$route.params.id}`
-      );
+      const response = await this.$useFetch(`posts/${this.$route.params.id}`);
       this.post = await response;
     },
     async fetchPostComments() {
@@ -87,12 +92,6 @@ export default {
       );
       this.postComments = await response;
       console.log(this.postComments)
-    },
-    async fetchPostAuthorName() {
-      const response = await this.$useFetch(
-        `users/${this.post.author_id}`
-      );
-      this.postAuthor = await response.username;
     },
     formatDates(a) {
       const dateObject = new Date(a);
@@ -103,6 +102,9 @@ export default {
         .split("\n")
         .filter((item) => item != "");
       this.postContent = formatedPost;
+    },
+    goToCategory(cat) {
+      this.$router.push(`/admin/categories/${cat}`)
     },
     removeTag(item, delimeter) {
       let size = delimeter.length;
@@ -159,7 +161,6 @@ export default {
   },
   async created() {
     await this.fetchPostInfo();
-    await this.fetchPostAuthorName();
     await this.fetchPostComments();
     this.formatContent();
   },

@@ -2,21 +2,25 @@
 const { queryAsync } = require('../db');
 
 const getPosts = async (req, res) => {
+
     try {
         const query = `
-            SELECT posts.*, GROUP_CONCAT(categories.name) AS categoryNames
+            SELECT posts.*, 
+                   GROUP_CONCAT(categories.name) AS categoryNames,
+                   users.username AS author
             FROM posts
             LEFT JOIN post_categories ON posts.id = post_categories.post_id
             LEFT JOIN categories ON post_categories.category_id = categories.id
+            LEFT JOIN users ON posts.author_id = users.id
             GROUP BY posts.id
         `;
 
         const posts = await queryAsync(query);
 
-        // Transform categoryNames into an array
         posts.forEach(post => {
             post.categories = post.categoryNames ? post.categoryNames.split(',') : [];
             delete post.categoryNames;
+            delete post.author_id;  // Removing the author_id from the response
         });
 
         res.status(200).json(posts);
@@ -31,10 +35,14 @@ const getPostById = async (req, res) => {
         const postId = req.params.postId;
 
         const query = `
-            SELECT posts.*, GROUP_CONCAT(categories.name) AS categoryNames
+            SELECT posts.*, 
+                   GROUP_CONCAT(categories.id) AS categoryIds,
+                   GROUP_CONCAT(categories.name) AS categoryNames,
+                   users.username AS author
             FROM posts
             LEFT JOIN post_categories ON posts.id = post_categories.post_id
             LEFT JOIN categories ON post_categories.category_id = categories.id
+            LEFT JOIN users ON posts.author_id = users.id
             WHERE posts.id = ?
             GROUP BY posts.id
         `;
@@ -45,9 +53,19 @@ const getPostById = async (req, res) => {
             return res.status(404).json({ error: 'Post não encontrado' });
         }
 
-        // Transform categoryNames into an array
-        post[0].categories = post[0].categoryNames ? post[0].categoryNames.split(',') : [];
+        post[0].categoryNames = post[0].categoryNames ? post[0].categoryNames.split(',') : [];
+        post[0].categoryIds = post[0].categoryIds ? post[0].categoryIds.split(',').map(Number) : [];
+
+        const categories = post[0].categoryIds.map((id, index) => ({
+            id,
+            name: post[0].categoryNames[index]
+        }));
+
+        post[0].categories = categories;
+
         delete post[0].categoryNames;
+        delete post[0].categoryIds;
+        delete post[0].author_id;  // Removing the author_id from the response
 
         res.status(200).json(post[0]);
     } catch (error) {
@@ -108,12 +126,11 @@ const updatePost = async (req, res) => {
         if (updatedFields.length > 0) {
             const updateQuery = `UPDATE posts SET ${updatedFields.join(', ')} WHERE id = ?`;
             updateParams.push(postId);
-
             await queryAsync(updateQuery, updateParams);
         }
 
         // Atualiza as categorias do post
-        if (categories) {
+        if (categories && categories.length > 0) {
             // Remove as categorias antigas
             await queryAsync('DELETE FROM post_categories WHERE post_id = ?', [postId]);
 
@@ -130,6 +147,7 @@ const updatePost = async (req, res) => {
         res.status(500).json({ error: 'Erro interno no servidor' });
     }
 };
+
 
 
 const deletePost = async (req, res) => {
