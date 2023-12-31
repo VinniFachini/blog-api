@@ -10,7 +10,8 @@
     <DashboardTable
       :data="comments"
       :fields="commentsFields"
-      :canRead="false"
+      :editAble="false"
+      :approvable="true"
     />
   </div>
 </template>

@@ -1,5 +1,5 @@
 <template>
-  <div :class="!disabled ? '' : 'opacity-50 pointer-events-none'">
+  <div :class="!disabled ? '' : 'pointer-events-none'">
     <label v-if="required && label" for="required-email">
       {{ label }}:
       <span class="text-red-500 required-dot"> * </span>
@@ -25,7 +25,7 @@ export default {
   data() {},
   props: {
     type: String,
-    noBorder: String,
+    noBorder: Boolean,
     label: String,
     required: Boolean,
     placeholder: String,
@@ -40,11 +40,17 @@ export default {
         classes.push("border-none");
       } else {
         classes.push("border");
+        classes.push("border ring-1");
+      }
+      if (this.$props.disabled) {
+        classes.push("shadow-none");
       }
       if (this.$props.inputFull) {
         classes.push("w-full");
+        classes.push("block");
       } else {
         classes.push("w-fit");
+        classes.push("max-w-md");
       }
       return classes.join(" ");
     },

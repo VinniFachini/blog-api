@@ -5,22 +5,35 @@ const { queryAsync } = require('../db');
 
 const register = async (req, res) => {
     try {
-        const { name, email, password, username, role } = req.body;
+        let { name, email, password, username, role } = req.body;
 
         // Verifica se o usuário já existe
         const userExists = await queryAsync('SELECT * FROM users WHERE username = ?', [username]);
+        
+        const emailExists = await queryAsync('SELECT * FROM users WHERE email = ?', [email]);
 
         if (userExists.length > 0) {
             return res.status(400).json({ error: 'Nome de usuário já em uso' });
+        }
+        
+        if (emailExists.length > 0) {
+            return res.status(400).json({ error: 'E-mail já em uso' });
         }
 
         // Hash da senha
         const hashedPassword = await bcrypt.hash(password, 10);
 
+        const imagePath = req.body.imagePath
+
+        if(role && role != 'Admin') {
+            role = 'Leitor'
+        }
+
         // Insere o usuário no banco de dados
-        await queryAsync('INSERT INTO users (name, email, password, username, role) VALUES (?, ?, ?, ?, ?)', [name, email, hashedPassword, username, role]);
+        await queryAsync('INSERT INTO users (name, email, password, username, role, user_image) VALUES (?, ?, ?, ?, ?, ?)', [name, email, hashedPassword, username, role, imagePath]);
 
         res.status(201).json({ message: 'Usuário registrado com sucesso' });
+
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Erro interno no servidor' });

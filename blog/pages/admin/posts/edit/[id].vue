@@ -53,6 +53,7 @@
         :value="post.content"
         v-model="postContent"
         class="contentField"
+        inputFull
         />
         
         

@@ -8,7 +8,7 @@
     </div>
     <form>
       <TextInput type="text" label="Post Title" required placeholder="Post Title" v-model="postTitle" class="textInput" inputFull/>
-      <TextAreaComponent label="Post Content" required :value='postContent' v-model="postContent" placeholder="Type the post content here..." />
+      <TextAreaComponent inputFull label="Post Content" required :value='postContent' v-model="postContent" placeholder="Type the post content here..." />
       <div class="categories">
         <div class="categories-buttons">
           <div class="button-group">

@@ -1,7 +1,7 @@
 <!-- components/DataTable.vue -->
 
 <template>
-  <div v-if="data.length > 0">
+  <div v-if="data && data.length > 0">
     <div class="mb-4 flex items-center space-x-2">
       <div
         v-if="
@@ -51,8 +51,8 @@
           <th v-for="field in formattedFields" :key="field" class="py-2 px-4">
             {{ field }}
           </th>
-          <th class="py-2 px-4">{{ canRead ? "Read" : "Approve" }}</th>
-          <th class="py-2 px-4">{{ canRead ? "Edit" : "" }}</th>
+          <th class="py-2 px-4">{{ approvable ? "Approve" : 'Read' }}</th>
+          <th class="py-2 px-4">{{ editAble ? "Edit" : "" }}</th>
           <th class="py-2 px-4">Delete</th>
         </tr>
       </thead>
@@ -82,7 +82,7 @@
           </td>
           <td class="py-2 px-4 text-center">
             <button
-              v-if="canRead"
+              v-if="!approvable"
               @click="goTo(item)"
               class="text-green-500 hover:underline"
             >
@@ -101,7 +101,7 @@
               </svg>
             </button>
             <button
-              v-else
+              v-else-if="approvable"
               @click="approveComment(item.id)"
               class="text-green-500 hover:underline"
             >
@@ -123,7 +123,7 @@
           </td>
           <td class="py-2 px-4 text-center">
             <button
-            v-if="canRead"
+            v-if="editAble"
               @click="editItem(item)"
               class="text-blue-500 hover:underline"
             >
@@ -179,7 +179,8 @@ export default {
   props: {
     data: Array,
     fields: Array,
-    canRead: Boolean,
+    editAble: Boolean,
+    approvable: Boolean
   },
   data() {
     return {
@@ -193,13 +194,15 @@ export default {
   computed: {
     formattedFields() {
       return this.fields.map((field) => {
-        return field
-          .replace(/_/g, " ")
-          .replace(/\b\w/g, (char) => char.toUpperCase());
+        if(field != 'user_image'){
+          return field
+            .replace(/_/g, " ")
+            .replace(/\b\w/g, (char) => char.toUpperCase());
+        }
       });
     },
     specialFields() {
-      return ["categories", "other_special_field"]; // Add your special fields here
+      return ["categories"]; // Add your special fields here
     },
     filteredData() {
       const filterValue = this.filterValue.toLowerCase();
@@ -207,7 +210,8 @@ export default {
       const endDateFilter = this.endDateFilter; // Retrieve end date filter value
       this.filterableFields = this.fields
         .filter((item) => item != "categories")
-        .filter((item) => item != "content");
+        .filter((item) => item != "content")
+        .filter((item) => item != "user_image")
       return this.data.filter((item) => {
         switch (this.selectedFilter) {
           case "id":
@@ -224,6 +228,10 @@ export default {
             return item.name.toLowerCase().includes(filterValue);
           case "username":
             return item.username.toLowerCase().includes(filterValue);
+          case "email":
+            return item.email.toLowerCase().includes(filterValue);
+          case "role":
+            return item.role.toLowerCase().includes(filterValue);
           case "created_at":
             const createdDate = new Date(item.created_at);
             return (
@@ -342,7 +350,7 @@ export default {
   },
   mounted() {
     this.setInitialDateFilters();
-    console.log(this.fields);
+    console.log(this.$props);
   },
 };
 </script>

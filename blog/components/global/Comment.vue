@@ -5,7 +5,7 @@
         class="user-picture"
         :src="
           comment.user.user_image
-            ? comment.user.user_image
+            ? userImage
             : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png'
         "
         :alt="comment.user.username"
@@ -122,5 +122,13 @@ export default {
   props: {
     comment: Object,
   },
+  data(){
+    return {
+      userImage: `http://localhost:3001/uploads/${this.$props.comment.user.user_image}`,
+    }
+  },
+  methods: {
+
+  }
 };
 </script>

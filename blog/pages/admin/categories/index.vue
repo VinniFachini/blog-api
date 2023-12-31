@@ -37,7 +37,8 @@
     <DashboardTable
       :data="categories"
       :fields="categorieFields"
-      :canRead="true"
+      :editAble="true"
+      :approvable="false"
     />
   </div>
 </template>

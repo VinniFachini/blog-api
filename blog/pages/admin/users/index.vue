@@ -1,35 +1,38 @@
 <template>
   <div class="content">
     <Head>
-      <Title>Dashboard | Posts</Title>
+      <Title>Dashboard | Users</Title>
     </Head>
-    <div class="posts-header">
-      <h1 class="text-4xl">Posts</h1>
-      <NuxtLink to="/admin/posts/new">
+    <div class="users-header">
+      <h1 class="text-4xl">Users</h1>
+      <NuxtLink to="/admin/users/new">
         <ButtonInput
           class="custom-button bg-blue-500 hover:bg-blue-600 text-white rounded-md py-2 px-4 mt-4 transition-all duration-300 ease-in-out"
         >
           <!-- SVG for New Post Icon -->
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            fill="none"
+            fill="currentColor"
             viewBox="0 0 24 24"
             stroke-width="1.5"
-            stroke="currentColor"
+            stroke="none"
             class="w-6 h-6"
           >
             <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M12 10.5v6m3-3H9m4.06-7.19l-2.12-2.12a1.5 1.5 0 00-1.061-.44H4.5A2.25 2.25 0 002.25 6v12a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9a2.25 2.25 0 00-2.25-2.25h-5.379a1.5 1.5 0 01-1.06-.44z"
-            />
+              d="M19 8h-2v3h-3v2h3v3h2v-3h3v-2h-3zM4 8a3.91 3.91 0 0 0 4 4 3.91 3.91 0 0 0 4-4 3.91 3.91 0 0 0-4-4 3.91 3.91 0 0 0-4 4zm6 0a1.91 1.91 0 0 1-2 2 1.91 1.91 0 0 1-2-2 1.91 1.91 0 0 1 2-2 1.91 1.91 0 0 1 2 2zM4 18a3 3 0 0 1 3-3h2a3 3 0 0 1 3 3v1h2v-1a5 5 0 0 0-5-5H7a5 5 0 0 0-5 5v1h2z"
+            ></path>
           </svg>
-          <span>New Post</span>
+          <span>New User</span>
         </ButtonInput>
       </NuxtLink>
     </div>
     <!-- Display the paginated posts using DashboardTable component -->
-    <DashboardTable :data="posts" :fields="postsFields" :editAble="true" :approvable="false"/>
+    <DashboardTable
+      :data="users"
+      :fields="usersFields"
+      :editAble="true"
+      :approvable="false"
+    />
   </div>
 </template>
 
@@ -43,15 +46,15 @@ definePageMeta({
 export default {
   data() {
     return {
-      posts: [],
-      postsFields: []
-    }
+      users: [],
+      usersFields: [],
+    };
   },
   async mounted() {
-    const response = await this.$useFetch('posts')
-    this.posts = response
-    this.postsFields = Object.keys(response[0])
-  }
+    const response = await this.$useFetch("users");
+    this.users = response;
+    this.usersFields = Object.keys(response[0]);
+  },
 };
 </script>
 
@@ -64,7 +67,7 @@ export default {
   margin: 0 !important;
 }
 
-.posts-header {
+.users-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
